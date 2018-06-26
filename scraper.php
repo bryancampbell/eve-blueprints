@@ -1,12 +1,17 @@
 <?php
-require 'scraperwiki.php';
+// This is a template for a PHP scraper on morph.io (https://morph.io)
+// including some code snippets below that you should find helpful
+require_once 'vendor/autoload.php';
+
+require 'vendor/openaustralia/scraperwiki/scraperwiki.php';
+require 'vendor/openaustralia/scraperwiki/simple_html_dom.php';
 
 set_time_limit(0);
 
-$html = scraperWiki::scrape("http://games.chruker.dk/eve_online/inventory.php?category_id=9");
+$html = scraperwiki::scrape("http://games.chruker.dk/eve_online/inventory.php?category_id=9");
 
 preg_match_all(
-    "|<a href=\"inventory.php\?group_id=(.+?)\">(.+?)</a>|s",
+    "|<a href='inventory.php\?group_id=(.+?)'>(.+?)</a>|s",
     $html,
     $matches, // will contain the pagination pages
     PREG_SET_ORDER // formats data into an array
@@ -16,7 +21,7 @@ foreach($matches as $match) {
     $groupId = $match[1];
     $group = $match[2];    
 
-    $html = scraperWiki::scrape("http://games.chruker.dk/eve_online/inventory.php?group_id=".$groupId);
+    $html = scraperwiki::scrape("http://games.chruker.dk/eve_online/inventory.php?group_id=".$groupId);
 
     preg_match_all(
         "|<a href='item.php\?type_id=(.+?)'>(.+?)</a>|s",
@@ -24,12 +29,12 @@ foreach($matches as $match) {
         $matches2, // will contain the pagination pages
         PREG_SET_ORDER // formats data into an array
     );
-    
+
     foreach($matches2 as $match2) {
         $itemId = $match2[1];
         $item = $match2[2];  
 
-        $html = scraperWiki::scrape("http://games.chruker.dk/eve_online/item.php?type_id=".$itemId);
+        $html = scraperwiki::scrape("http://games.chruker.dk/eve_online/item.php?type_id=".$itemId);
 
         $i = strpos($html, "Materials - Consumed");
         if ($i == false) continue;
